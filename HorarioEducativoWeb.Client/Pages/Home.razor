@@ -1,0 +1,57 @@
+﻿@page "/"
+
+<PageTitle>Inicio - HorarioEducativoWeb</PageTitle>
+
+<div class="container mt-4">
+    @* Encabezado Principal *@
+    <div class="p-5 mb-4 bg-light rounded-3 border">
+        <div class="container-fluid py-5">
+            <h1 class="display-5 fw-bold text-primary">Sistema de Gestión Escolar</h1>
+            <p class="col-md-8 fs-4">
+                Bienvenido a <strong>HorarioEducativoWeb</strong>. La plataforma centralizada para organizar docentes, 
+                asignaturas y espacios físicos de manera eficiente.
+            </p>
+            <a href="horarios" class="btn btn-primary btn-lg">
+                <i class="bi bi-calendar3"></i> Ver Horarios Actuales
+            </a>
+        </div>
+    </div>
+
+    @* Accesos Rápidos en Cards *@
+    <div class="row align-items-md-stretch">
+        <div class="col-md-4">
+            <div class="h-100 p-4 border rounded-3 bg-white shadow-sm">
+                <h3><i class="bi bi-person-badge"></i> Docentes</h3>
+                <p>Gestiona la nómina de profesores y sus especialidades académicas.</p>
+                <button class="btn btn-outline-secondary" type="button">Ir a Docentes</button>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="h-100 p-4 border rounded-3 bg-white shadow-sm">
+                <h3><i class="bi bi-book"></i> Asignaturas</h3>
+                <p>Configura las materias y la carga horaria semanal por nivel educativo.</p>
+                <button class="btn btn-outline-secondary" type="button">Ir a Materias</button>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="h-100 p-4 border rounded-3 bg-white shadow-sm">
+                <h3><i class="bi bi-door-open"></i> Aulas</h3>
+                <p>Controla la disponibilidad de salones y laboratorios para evitar conflictos.</p>
+                <button class="btn btn-outline-secondary" type="button">Ir a Aulas</button>
+            </div>
+        </div>
+    </div>
+
+    @* Estado del Sistema *@
+    <div class="mt-4 p-3 bg-info bg-opacity-10 border border-info rounded">
+        <div class="d-flex align-items-center">
+            <div class="spinner-grow text-info me-3" role="status" style="width: 1rem; height: 1rem;"></div>
+            <span><strong>Estado del Sistema:</strong> Conectado al API v1.0 - .NET 8.0</span>
+        </div>
+    </div>
+</div>
+
+@code {
+    // Aquí podrías luego inyectar servicios para mostrar estadísticas reales
+    // como: "Total de docentes: 15", "Horarios hoy: 8", etc.
+}

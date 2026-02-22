@@ -1,0 +1,53 @@
+﻿<div class="top-row ps-3 navbar navbar-dark bg-primary shadow">
+    <div class="container-fluid">
+        @* Cambiamos el nombre técnico por el nombre del sistema *@
+        <a class="navbar-brand fw-bold" href="">Gestión Educativa</a>
+        <button title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenu">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+    </div>
+</div>
+
+<div class="@NavMenuCssClass nav-scrollable" @onclick="ToggleNavMenu">
+    <nav class="nav flex-column">
+        @* Inicio *@
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
+                <span class="bi bi-house-door-fill" aria-hidden="true"></span> Inicio
+            </NavLink>
+        </div>
+
+        @* Horarios *@
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="horarios">
+                <span class="bi bi-calendar3" aria-hidden="true"></span> Ver Horarios
+            </NavLink>
+        </div>
+
+        @* Separador opcional *@
+        <hr class="text-white mx-3 my-2" />
+
+        @* Accesos futuras mejoras *@
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="docentes">
+                <span class="bi bi-people-fill" aria-hidden="true"></span> Docentes
+            </NavLink>
+        </div>
+
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="aulas">
+                <span class="bi bi-building" aria-hidden="true"></span> Aulas
+            </NavLink>
+        </div>
+    </nav>
+</div>
+
+@code {
+    private bool collapseNavMenu = true;
+    private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
+
+    private void ToggleNavMenu()
+    {
+        collapseNavMenu = !collapseNavMenu;
+    }
+}
