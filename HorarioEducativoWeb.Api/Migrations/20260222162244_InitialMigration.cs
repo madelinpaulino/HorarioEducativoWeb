@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace HorarioEducativoWeb.Api.Migrations
+namespace HorarioEducativoWeb.API.Migrations
 {
     /// <inheritdoc />
     public partial class InitialMigration : Migration

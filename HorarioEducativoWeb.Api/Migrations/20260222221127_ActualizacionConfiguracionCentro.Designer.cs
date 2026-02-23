@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace HorarioEducativoWeb.API.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260222162244_InitialMigration")]
-    partial class InitialMigration
+    [Migration("20260222221127_ActualizacionConfiguracionCentro")]
+    partial class ActualizacionConfiguracionCentro
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -25,7 +25,7 @@ namespace HorarioEducativoWeb.API.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("HorarioEducativoWeb.API.Models.Asignatura", b =>
+            modelBuilder.Entity("HorarioEducativoWeb.Shared.Models.Asignatura", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -43,9 +43,23 @@ namespace HorarioEducativoWeb.API.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Asignaturas");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            HorasSemanales = 4,
+                            Nombre = "Álgebra Lineal"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            HorasSemanales = 6,
+                            Nombre = "Desarrollo Web con .NET"
+                        });
                 });
 
-            modelBuilder.Entity("HorarioEducativoWeb.API.Models.Aula", b =>
+            modelBuilder.Entity("HorarioEducativoWeb.Shared.Models.Aula", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -60,9 +74,21 @@ namespace HorarioEducativoWeb.API.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Aulas");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Codigo = "Lab-101"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Codigo = "Aula-202"
+                        });
                 });
 
-            modelBuilder.Entity("HorarioEducativoWeb.API.Models.CentroEducativo", b =>
+            modelBuilder.Entity("HorarioEducativoWeb.Shared.Models.CentroEducativo", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -85,9 +111,18 @@ namespace HorarioEducativoWeb.API.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("InformacionCentro");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Direccion = "Av. Principal #123, Ciudad Educativa",
+                            Nombre = "Centro Educativo Central",
+                            RNC = "101-00000-1"
+                        });
                 });
 
-            modelBuilder.Entity("HorarioEducativoWeb.API.Models.Docente", b =>
+            modelBuilder.Entity("HorarioEducativoWeb.Shared.Models.Docente", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -106,9 +141,23 @@ namespace HorarioEducativoWeb.API.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Docentes");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Especialidad = "Matemáticas",
+                            Nombre = "Juan Pérez"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Especialidad = "Programación",
+                            Nombre = "María García"
+                        });
                 });
 
-            modelBuilder.Entity("HorarioEducativoWeb.API.Models.Grupo", b =>
+            modelBuilder.Entity("HorarioEducativoWeb.Shared.Models.Grupo", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -127,9 +176,17 @@ namespace HorarioEducativoWeb.API.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Grupos");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Modalidad = "Técnico en Informática",
+                            Nombre = "4to de Media"
+                        });
                 });
 
-            modelBuilder.Entity("HorarioEducativoWeb.API.Models.Horario", b =>
+            modelBuilder.Entity("HorarioEducativoWeb.Shared.Models.Horario", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -150,6 +207,9 @@ namespace HorarioEducativoWeb.API.Migrations
                     b.Property<int>("DocenteId")
                         .HasColumnType("int");
 
+                    b.Property<int?>("DocenteId1")
+                        .HasColumnType("int");
+
                     b.Property<int>("GrupoId")
                         .HasColumnType("int");
 
@@ -167,33 +227,52 @@ namespace HorarioEducativoWeb.API.Migrations
 
                     b.HasIndex("DocenteId");
 
+                    b.HasIndex("DocenteId1");
+
                     b.HasIndex("GrupoId");
 
                     b.ToTable("Horarios");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            AsignaturaId = 1,
+                            AulaId = 1,
+                            DiaSemana = "Lunes",
+                            DocenteId = 1,
+                            GrupoId = 1,
+                            HoraFin = new TimeSpan(0, 10, 0, 0, 0),
+                            HoraInicio = new TimeSpan(0, 8, 0, 0, 0)
+                        });
                 });
 
-            modelBuilder.Entity("HorarioEducativoWeb.API.Models.Horario", b =>
+            modelBuilder.Entity("HorarioEducativoWeb.Shared.Models.Horario", b =>
                 {
-                    b.HasOne("HorarioEducativoWeb.API.Models.Asignatura", "Asignatura")
-                        .WithMany()
+                    b.HasOne("HorarioEducativoWeb.Shared.Models.Asignatura", "Asignatura")
+                        .WithMany("Horarios")
                         .HasForeignKey("AsignaturaId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("HorarioEducativoWeb.API.Models.Aula", "Aula")
-                        .WithMany()
+                    b.HasOne("HorarioEducativoWeb.Shared.Models.Aula", "Aula")
+                        .WithMany("Horarios")
                         .HasForeignKey("AulaId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("HorarioEducativoWeb.API.Models.Docente", "Docente")
+                    b.HasOne("HorarioEducativoWeb.Shared.Models.Docente", "Docente")
                         .WithMany()
                         .HasForeignKey("DocenteId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("HorarioEducativoWeb.API.Models.Grupo", "Grupo")
-                        .WithMany()
+                    b.HasOne("HorarioEducativoWeb.Shared.Models.Docente", null)
+                        .WithMany("Horarios")
+                        .HasForeignKey("DocenteId1");
+
+                    b.HasOne("HorarioEducativoWeb.Shared.Models.Grupo", "Grupo")
+                        .WithMany("Horarios")
                         .HasForeignKey("GrupoId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -205,6 +284,26 @@ namespace HorarioEducativoWeb.API.Migrations
                     b.Navigation("Docente");
 
                     b.Navigation("Grupo");
+                });
+
+            modelBuilder.Entity("HorarioEducativoWeb.Shared.Models.Asignatura", b =>
+                {
+                    b.Navigation("Horarios");
+                });
+
+            modelBuilder.Entity("HorarioEducativoWeb.Shared.Models.Aula", b =>
+                {
+                    b.Navigation("Horarios");
+                });
+
+            modelBuilder.Entity("HorarioEducativoWeb.Shared.Models.Docente", b =>
+                {
+                    b.Navigation("Horarios");
+                });
+
+            modelBuilder.Entity("HorarioEducativoWeb.Shared.Models.Grupo", b =>
+                {
+                    b.Navigation("Horarios");
                 });
 #pragma warning restore 612, 618
         }

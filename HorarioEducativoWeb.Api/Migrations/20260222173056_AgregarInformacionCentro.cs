@@ -2,7 +2,7 @@
 
 #nullable disable
 
-namespace HorarioEducativoWeb.Api.Migrations
+namespace HorarioEducativoWeb.API.Migrations
 {
     /// <inheritdoc />
     public partial class AgregarInformacionCentro : Migration

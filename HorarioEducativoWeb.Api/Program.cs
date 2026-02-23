@@ -1,5 +1,5 @@
 using Microsoft.EntityFrameworkCore;
-using HorarioEducativoWeb.Api.Data;
+using HorarioEducativoWeb.API.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 

@@ -1,25 +1,27 @@
-using HorarioEducativoWeb.Api.Models;
+using HorarioEducativoWeb.Shared.Models;
 using Microsoft.EntityFrameworkCore;
-using System.Collections.Generic;
 
-namespace HorarioEducativoWeb.Api.Data
+namespace HorarioEducativoWeb.API.Data
 {
     public class ApplicationDbContext : DbContext
     {
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) { }
 
-        public DbSet<Horario> Horarios => Set<Horario>();
-        public DbSet<Docente> Docentes => Set<Docente>();
-        public DbSet<Asignatura> Asignaturas => Set<Asignatura>();
-        public DbSet<Aula> Aulas => Set<Aula>();
-        public DbSet<Grupo> Grupos => Set<Grupo>();
-        public DbSet<CentroEducativo> InformacionCentro => Set<CentroEducativo>();
+        public DbSet<Docente> Docentes { get; set; }
+        public DbSet<Asignatura> Asignaturas { get; set; }
+        public DbSet<Aula> Aulas { get; set; }
+        public DbSet<Grupo> Grupos { get; set; }
+        public DbSet<Horario> Horarios { get; set; }
+
+        // Ajustado para que coincida con la lógica de "información única"
+        public DbSet<CentroEducativo> InformacionCentro { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
 
-            // 1. Seed para Información del Centro (¡Aquí está!)
+            // 1. Seed para Información del Centro
+            // Importante: El Id debe ser 1 para que nuestra lógica de "Update" lo encuentre siempre
             modelBuilder.Entity<CentroEducativo>().HasData(
                 new CentroEducativo
                 {
@@ -50,7 +52,7 @@ namespace HorarioEducativoWeb.Api.Data
 
             // 5. Seed para Grupos
             modelBuilder.Entity<Grupo>().HasData(
-                new Grupo { Id = 1, Nombre = "4to de Media", Modalidad = "Media" }
+                new Grupo { Id = 1, Nombre = "4to de Media", Modalidad = "Técnico en Informática" }
             );
 
             // 6. Seed para Horario inicial
@@ -67,6 +69,14 @@ namespace HorarioEducativoWeb.Api.Data
                     HoraFin = new TimeSpan(10, 0, 0)
                 }
             );
+
+            // Configuraciones Adicionales (Opcional pero recomendado)
+            // Esto asegura que si borras un aula, no se rompa todo de golpe si hay horarios
+            modelBuilder.Entity<Horario>()
+                .HasOne(h => h.Docente)
+                .WithMany()
+                .HasForeignKey(h => h.DocenteId)
+                .OnDelete(DeleteBehavior.Restrict);
         }
     }
 }

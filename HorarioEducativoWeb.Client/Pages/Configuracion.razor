@@ -1,0 +1,329 @@
+﻿@page "/configuracion"
+@using HorarioEducativoWeb.Shared.Models
+@inject HttpClient Http
+@inject IJSRuntime JS
+
+<PageTitle>Configuración - @centro.Nombre</PageTitle>
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2><i class="bi bi-gear-wide-connected"></i> Panel de Control</h2>
+        <span class="badge bg-secondary">@centro.Nombre</span>
+    </div>
+
+    @* --- PESTAÑAS --- *@
+    <ul class="nav nav-pills mb-4 bg-light p-2 rounded shadow-sm" id="configTabs">
+        <li class="nav-item">
+            <button class="nav-link @(tabActiva == "docentes" ? "active" : "")" @onclick='() => CambiarTab("docentes")'>
+                <i class="bi bi-person-badge"></i> Docentes
+            </button>
+        </li>
+        <li class="nav-item">
+            <button class="nav-link @(tabActiva == "materias" ? "active" : "")" @onclick='() => CambiarTab("materias")'>
+                <i class="bi bi-book"></i> Asignaturas
+            </button>
+        </li>
+        <li class="nav-item">
+            <button class="nav-link @(tabActiva == "aulas" ? "active" : "")" @onclick='() => CambiarTab("aulas")'>
+                <i class="bi bi-door-open"></i> Aulas
+            </button>
+        </li>
+        <li class="nav-item">
+            <button class="nav-link @(tabActiva == "grupos" ? "active" : "")" @onclick='() => CambiarTab("grupos")'>
+                <i class="bi bi-people"></i> Grupos
+            </button>
+        </li>
+        <li class="nav-item">
+            <button class="nav-link @(tabActiva == "centro" ? "active" : "")" @onclick='() => CambiarTab("centro")'>
+                <i class="bi bi-building"></i> Centro
+            </button>
+        </li>
+    </ul>
+
+    <div class="card shadow border-0">
+        <div class="card-body p-4">
+            
+            @* --- SECCIÓN DOCENTES --- *@
+            @if (tabActiva == "docentes")
+            {
+                <h4 class="mb-3 text-primary">Gestión de Docentes</h4>
+                <div class="row g-2 mb-4 p-3 bg-light rounded border-start border-primary border-4">
+                    <div class="col-md-5">
+                        <label class="small fw-bold">Nombre Completo</label>
+                        <input @bind="docenteMod.Nombre" class="form-control" placeholder="Ej: Juan Pérez" />
+                    </div>
+                    <div class="col-md-4">
+                        <label class="small fw-bold">Especialidad</label>
+                        <input @bind="docenteMod.Especialidad" class="form-control" placeholder="Ej: Matemáticas" />
+                    </div>
+                    <div class="col-md-3 d-flex align-items-end gap-1">
+                        <button @onclick="GuardarDocente" class="btn @(esEdicion ? "btn-warning" : "btn-success") w-100">
+                            <i class="bi @(esEdicion ? "bi-check-circle" : "bi-plus-circle")"></i> @(esEdicion ? "Actualizar" : "Añadir")
+                        </button>
+                        @if (esEdicion) {
+                            <button @onclick="CancelarEdicion" class="btn btn-secondary"><i class="bi bi-x-lg"></i></button>
+                        }
+                    </div>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle">
+                        <thead class="table-light"><tr><th>Nombre</th><th>Especialidad</th><th class="text-end">Acciones</th></tr></thead>
+                        <tbody>
+                            @foreach (var d in listaDocentes) {
+                                <tr>
+                                    <td><strong>@d.Nombre</strong></td>
+                                    <td>@d.Especialidad</td>
+                                    <td class="text-end">
+                                        <button class="btn btn-sm btn-outline-warning me-1" @onclick="() => PrepararEditarDocente(d)"><i class="bi bi-pencil"></i></button>
+                                        <button class="btn btn-sm btn-outline-danger" @onclick='() => Eliminar(d.Id, "d")'><i class="bi bi-trash"></i></button>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+
+            @* --- SECCIÓN ASIGNATURAS --- *@
+            @if (tabActiva == "materias")
+            {
+                <h4 class="mb-3 text-success">Gestión de Asignaturas</h4>
+                <div class="row g-2 mb-4 p-3 bg-light rounded border-start border-success border-4">
+                    <div class="col-md-6">
+                        <label class="small fw-bold">Nombre de la Materia</label>
+                        <input @bind="asigMod.Nombre" class="form-control" />
+                    </div>
+                    <div class="col-md-3">
+                        <label class="small fw-bold">Horas/Semana</label>
+                        <input @bind="asigMod.HorasSemanales" type="number" class="form-control" />
+                    </div>
+                    <div class="col-md-3 d-flex align-items-end gap-1">
+                        <button @onclick="GuardarAsignatura" class="btn @(esEdicion ? "btn-warning" : "btn-success") w-100">
+                             <i class="bi bi-save"></i> @(esEdicion ? "Actualizar" : "Añadir")
+                        </button>
+                        @if (esEdicion) {
+                            <button @onclick="CancelarEdicion" class="btn btn-secondary"><i class="bi bi-x-lg"></i></button>
+                        }
+                    </div>
+                </div>
+                <table class="table table-hover align-middle">
+                    <thead class="table-light"><tr><th>Materia</th><th>Carga Horaria</th><th class="text-end">Acciones</th></tr></thead>
+                    <tbody>
+                        @foreach (var a in listaAsignaturas) {
+                            <tr><td>@a.Nombre</td><td><span class="badge bg-info text-dark">@a.HorasSemanales hrs</span></td>
+                            <td class="text-end">
+                                <button class="btn btn-sm btn-outline-warning me-1" @onclick="() => PrepararEditarAsig(a)"><i class="bi bi-pencil"></i></button>
+                                <button class="btn btn-sm btn-outline-danger" @onclick='() => Eliminar(a.Id, "a")'><i class="bi bi-trash"></i></button>
+                            </td></tr>
+                        }
+                    </tbody>
+                </table>
+            }
+
+            @* --- SECCIÓN AULAS --- *@
+            @if (tabActiva == "aulas")
+            {
+                <h4 class="mb-3 text-info">Gestión de Espacios Físicos</h4>
+                <div class="row g-2 mb-4 p-3 bg-light rounded border-start border-info border-4">
+                    <div class="col-md-9">
+                        <label class="small fw-bold">Identificador / Código de Aula</label>
+                        <input @bind="aulaMod.Codigo" class="form-control" placeholder="Ej: Laboratorio B-1" />
+                    </div>
+                    <div class="col-md-3 d-flex align-items-end gap-1">
+                        <button @onclick="GuardarAula" class="btn @(esEdicion ? "btn-warning" : "btn-success") w-100">
+                             <i class="bi bi-save"></i> @(esEdicion ? "Actualizar" : "Añadir")
+                        </button>
+                        @if (esEdicion) {
+                            <button @onclick="CancelarEdicion" class="btn btn-secondary"><i class="bi bi-x-lg"></i></button>
+                        }
+                    </div>
+                </div>
+                <table class="table table-hover align-middle">
+                    <thead class="table-light"><tr><th>Código de Aula</th><th class="text-end">Acciones</th></tr></thead>
+                    <tbody>
+                        @foreach (var au in listaAulas) {
+                            <tr><td><span class="badge bg-light text-dark border">@au.Codigo</span></td>
+                            <td class="text-end">
+                                <button class="btn btn-sm btn-outline-warning me-1" @onclick="() => PrepararEditarAula(au)"><i class="bi bi-pencil"></i></button>
+                                <button class="btn btn-sm btn-outline-danger" @onclick='() => Eliminar(au.Id, "au")'><i class="bi bi-trash"></i></button>
+                            </td></tr>
+                        }
+                    </tbody>
+                </table>
+            }
+
+            @* --- SECCIÓN GRUPOS --- *@
+            @if (tabActiva == "grupos")
+            {
+                <h4 class="mb-3 text-warning">Gestión de Grupos / Grados</h4>
+                <div class="row g-2 mb-4 p-3 bg-light rounded border-start border-warning border-4">
+                    <div class="col-md-5">
+                        <label class="small fw-bold">Nombre del Grupo</label>
+                        <input @bind="grupoMod.Nombre" class="form-control" placeholder="Ej: 6to de Secundaria" />
+                    </div>
+                    <div class="col-md-4">
+                        <label class="small fw-bold">Modalidad / Sección</label>
+                        <input @bind="grupoMod.Modalidad" class="form-control" placeholder="Ej: Técnico en Informática" />
+                    </div>
+                    <div class="col-md-3 d-flex align-items-end gap-1">
+                        <button @onclick="GuardarGrupo" class="btn @(esEdicion ? "btn-warning" : "btn-success") w-100">
+                             <i class="bi bi-save"></i> @(esEdicion ? "Actualizar" : "Añadir")
+                        </button>
+                        @if (esEdicion) {
+                            <button @onclick="CancelarEdicion" class="btn btn-secondary"><i class="bi bi-x-lg"></i></button>
+                        }
+                    </div>
+                </div>
+                <table class="table table-hover align-middle">
+                    <thead class="table-light"><tr><th>Nombre</th><th>Modalidad</th><th class="text-end">Acciones</th></tr></thead>
+                    <tbody>
+                        @foreach (var g in listaGrupos) {
+                            <tr>
+                                <td><strong>@g.Nombre</strong></td>
+                                <td>@g.Modalidad</td>
+                                <td class="text-end">
+                                    <button class="btn btn-sm btn-outline-warning me-1" @onclick="() => PrepararEditarGrupo(g)"><i class="bi bi-pencil"></i></button>
+                                    <button class="btn btn-sm btn-outline-danger" @onclick='() => Eliminar(g.Id, "g")'><i class="bi bi-trash"></i></button>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+
+            @* --- SECCIÓN CENTRO EDUCATIVO --- *@
+            @if (tabActiva == "centro")
+            {
+                <h4 class="mb-3 text-secondary">Información Institucional</h4>
+                <div class="row g-3 p-3 bg-light rounded border-start border-secondary border-4">
+                    <div class="col-md-6">
+                        <label class="small fw-bold">Nombre del Centro</label>
+                        <input @bind="centro.Nombre" class="form-control" />
+                    </div>
+                    <div class="col-md-3">
+                        <label class="small fw-bold">RNC</label>
+                        <input @bind="centro.RNC" class="form-control" />
+                    </div>
+                    <div class="col-md-3 d-flex align-items-end">
+                        <button @onclick="GuardarCentro" class="btn btn-primary w-100">
+                            <i class="bi bi-save"></i> Guardar Cambios
+                        </button>
+                    </div>
+                    <div class="col-md-12">
+                        <label class="small fw-bold">Dirección Física</label>
+                        <textarea @bind="centro.Direccion" class="form-control" rows="2"></textarea>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@code {
+    private string tabActiva = "docentes";
+    private bool esEdicion = false;
+    private CentroEducativo centro = new() { Nombre = "Cargando..." };
+    
+    private List<Docente> listaDocentes = new();
+    private List<Asignatura> listaAsignaturas = new();
+    private List<Aula> listaAulas = new();
+    private List<Grupo> listaGrupos = new();
+
+    private Docente docenteMod = new();
+    private Asignatura asigMod = new();
+    private Aula aulaMod = new();
+    private Grupo grupoMod = new();
+
+    protected override async Task OnInitializedAsync() => await CargarTodo();
+
+    private async Task CargarTodo() {
+        try {
+            centro = await Http.GetFromJsonAsync<CentroEducativo>("api/Centro") ?? new();
+            listaDocentes = await Http.GetFromJsonAsync<List<Docente>>("api/Docentes") ?? new();
+            listaAsignaturas = await Http.GetFromJsonAsync<List<Asignatura>>("api/Asignaturas") ?? new();
+            listaAulas = await Http.GetFromJsonAsync<List<Aula>>("api/Aulas") ?? new();
+            listaGrupos = await Http.GetFromJsonAsync<List<Grupo>>("api/Grupos") ?? new();
+        } catch (Exception ex) { Console.WriteLine(ex.Message); }
+    }
+
+    // --- LÓGICA CENTRO ---
+    private async Task GuardarCentro() {
+        if (string.IsNullOrWhiteSpace(centro.Nombre)) { await Notificar("El nombre es obligatorio", "warning"); return; }
+        var res = await Http.PostAsJsonAsync("api/Centro", centro);
+        if (res.IsSuccessStatusCode) await Notificar("Centro actualizado", "success");
+        else await Notificar("Error al guardar centro", "error");
+    }
+
+    // --- LÓGICA DOCENTES ---
+    private void PrepararEditarDocente(Docente d) {
+        docenteMod = new Docente { Id = d.Id, Nombre = d.Nombre, Especialidad = d.Especialidad };
+        esEdicion = true;
+    }
+    private async Task GuardarDocente() {
+        if (string.IsNullOrWhiteSpace(docenteMod.Nombre)) { await Notificar("El nombre es obligatorio", "warning"); return; }
+        var res = esEdicion ? await Http.PutAsJsonAsync($"api/Docentes/{docenteMod.Id}", docenteMod) : await Http.PostAsJsonAsync("api/Docentes", docenteMod);
+        await ManejarRespuesta(res, "Docente");
+    }
+
+    // --- LÓGICA ASIGNATURAS ---
+    private void PrepararEditarAsig(Asignatura a) {
+        asigMod = new Asignatura { Id = a.Id, Nombre = a.Nombre, HorasSemanales = a.HorasSemanales };
+        esEdicion = true;
+    }
+    private async Task GuardarAsignatura() {
+        if (string.IsNullOrWhiteSpace(asigMod.Nombre) || asigMod.HorasSemanales <= 0) { await Notificar("Datos inválidos", "warning"); return; }
+        var res = esEdicion ? await Http.PutAsJsonAsync($"api/Asignaturas/{asigMod.Id}", asigMod) : await Http.PostAsJsonAsync("api/Asignaturas", asigMod);
+        await ManejarRespuesta(res, "Asignatura");
+    }
+
+    // --- LÓGICA AULAS ---
+    private void PrepararEditarAula(Aula au) {
+        aulaMod = new Aula { Id = au.Id, Codigo = au.Codigo };
+        esEdicion = true;
+    }
+    private async Task GuardarAula() {
+        if (string.IsNullOrWhiteSpace(aulaMod.Codigo)) { await Notificar("El código es obligatorio", "warning"); return; }
+        var res = esEdicion ? await Http.PutAsJsonAsync($"api/Aulas/{aulaMod.Id}", aulaMod) : await Http.PostAsJsonAsync("api/Aulas", aulaMod);
+        await ManejarRespuesta(res, "Aula");
+    }
+
+    // --- LÓGICA GRUPOS ---
+    private void PrepararEditarGrupo(Grupo g) {
+        grupoMod = new Grupo { Id = g.Id, Nombre = g.Nombre, Modalidad = g.Modalidad };
+        esEdicion = true;
+    }
+    private async Task GuardarGrupo() {
+        if (string.IsNullOrWhiteSpace(grupoMod.Nombre)) { await Notificar("El nombre del grupo es obligatorio", "warning"); return; }
+        var res = esEdicion ? await Http.PutAsJsonAsync($"api/Grupos/{grupoMod.Id}", grupoMod) : await Http.PostAsJsonAsync("api/Grupos", grupoMod);
+        await ManejarRespuesta(res, "Grupo");
+    }
+
+    // --- GENERALES ---
+    private async Task ManejarRespuesta(HttpResponseMessage res, string entidad) {
+        if (res.IsSuccessStatusCode) {
+            CancelarEdicion();
+            await CargarTodo();
+            await Notificar($"{entidad} procesado correctamente", "success");
+        } else {
+            var msg = await res.Content.ReadAsStringAsync();
+            await Notificar(msg ?? "Error en el servidor", "error");
+        }
+    }
+
+    private void CancelarEdicion() {
+        docenteMod = new(); asigMod = new(); aulaMod = new(); grupoMod = new();
+        esEdicion = false;
+    }
+
+    private async Task Eliminar(int id, string tipo) {
+        string url = tipo switch { "d" => "Docentes", "a" => "Asignaturas", "au" => "Aulas", "g" => "Grupos", _ => "" };
+        if (await JS.InvokeAsync<bool>("confirm", "¿Deseas eliminar este registro?")) {
+            var res = await Http.DeleteAsync($"api/{url}/{id}");
+            if (res.IsSuccessStatusCode) await CargarTodo();
+            else await Notificar("No se pudo eliminar. Podría estar en uso.", "error");
+        }
+    }
+
+    private void CambiarTab(string tab) { tabActiva = tab; CancelarEdicion(); }
+    private async Task Notificar(string m, string t) => await JS.InvokeVoidAsync("Swal.fire", "Configuración", m, t);
+}
